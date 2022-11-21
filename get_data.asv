@@ -1,4 +1,4 @@
-function [data_out] = get_data(bag,t0_velocity,tfinal_velocity, Steering_Ratio)
+function [data_out] = get_data(bag,t0_velocity, Steering_Ratio)
 %GET_DATA Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -57,16 +57,15 @@ Orient.Pitch = Pitch;
 Orient.Roll = Roll;
 Orient.Time = timephi;
 
-    t0 = get_t0(data_out,t0_velocity);
-    tfinal = get_tfinal(data_out,tfinal_velocity);
-    data_out.t0 = t0;
+
+    data_out.t0 = get_t0(data_out,t0_velocity);
 
 
     
     del = interp1(timedel-data_out.t0, del, AngVel.Time - data_out.t0);
     
     Steering = struct;
-    Steering.SteeringWheelAngle = del;
+    Steering.SteeringWheelAngle = del/Steering_Ratio;
     Steering.Time = timedel;
 
     Accel.X = interp1(Accel.Time - data_out.t0, Accel.X, AngVel.Time-data_out.t0); % m/s^2
@@ -81,35 +80,30 @@ Orient.Time = timephi;
     Pos.Y = interp1(Pos.Time - data_out.t0, Pos.Y, AngVel.Time-data_out.t0); % m/s^2
     Pos.Z = interp1(Pos.Time - data_out.t0, Pos.Z, AngVel.Time-data_out.t0); % m/s^2
     
-    AngVel.Yaw = cut_data(AngVel.Yaw,AngVel.Time,t0,tfinal);
-    AngVel.Pitch = cut_data(AngVel.Pitch,AngVel.Time,t0,tfinal);
-    AngVel.Roll = cut_data(AngVel.Roll,AngVel.Time,t0,tfinal);
-
-    Accel.X = cut_data(Accel.X,AngVel.Time,t0,tfinal);
-    Accel.Y = cut_data(Accel.Y,AngVel.Time,t0,tfinal);
-    Accel.Z = cut_data(Accel.Z,AngVel.Time,t0,tfinal);
-
-    Vel.X = cut_data(Vel.X,AngVel.Time,t0,tfinal);
-    Vel.Y = cut_data(Vel.Y,AngVel.Time,t0,tfinal);
-    Vel.Z = cut_data(Vel.Z,AngVel.Time,t0,tfinal);
-
-    Pos.X = cut_data(Pos.X,AngVel.Time,t0,tfinal);
-    Pos.Y = cut_data(Pos.Y,AngVel.Time,t0,tfinal);
-    Pos.Z = cut_data(Pos.Z,AngVel.Time,t0,tfinal);
     
-    Steering.SteeringWheelAngle = cut_data(Steering.SteeringWheelAngle,AngVel.Time,t0,tfinal);
-    Steering.SteerAngle = Steering.SteeringWheelAngle/Steering_Ratio;
+
+    Accel.X = cut_data(Accel.X,AngVel.Time,t0,AngVel.Time(end-20));
+    Accel.Y = cut_data(Accel.Y,AngVel.Time,t0,AngVel.Time(end-20));
+    Accel.Z = cut_data(Accel.Z,AngVel.Time,t0,AngVel.Time(end-20));
+
+    Vel.X = cut_data(Vel.X,AngVel.Time,t0,AngVel.Time(end-20));
+    Vel.Y = cut_data(Vel.Y,AngVel.Time,t0,AngVel.Time(end-20));
+    Vel.Z = cut_data(Vel.Z,AngVel.Time,t0,AngVel.Time(end-20));
+
+    Pos.X = cut_data(Pos.X,AngVel.Time,t0,AngVel.Time(end-20));
+    Pos.Y = cut_data(Pos.Y,AngVel.Time,t0,AngVel.Time(end-20));
+    Pos.Z = cut_data(Pos.Z,AngVel.Time,t0,AngVel.Time(end-20));
     
-    Time = AngVel.Time-data_out.t0;
-    Time = cut_data(Time,AngVel.Time,t0,tfinal);
+    Steering.SteeringWheelAngle = cut_data(Steering.SteeringWheelAngle,AngVel.Time,t0,AngVel.Time(end-20));
 
     data_out.IMU.Accel = Accel;
     data_out.IMU.Vel = Vel;
     data_out.IMU.Pos = Pos;
     data_out.IMU.AngVel = AngVel;
     data_out.IMU.Orient = Orient;
-    data_out.Steering = Steering;
-    data_out.Time = Time;
+    data_out.Steering.SteeringWheelAngle = del/Steering_Ratio;
+    data_out.Steering.Time = timedel;
+    data_out.Time = AngVel.Time-data_out.t0;
 
 end
 
