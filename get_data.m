@@ -12,8 +12,8 @@ data_out.IMU.Vel = Vel;
 data_out.IMU.Pos = Pos;
 data_out.IMU.AngVel = AngVel;
 
-
-
+GPSpos = get_GPS(bag);
+data_out.GPS.Pos = GPSpos;
 
 
 %% Get steering angle
@@ -177,7 +177,6 @@ function [Accel, Vel, Pos, AngVel] = get_IMU_Accelerometer_Data(bag)
         pos_y_IMU(i) = pos_y_IMU(i-1) + vel_y_IMU(i)*(time_V_IMU(i)-time_V_IMU(i-1));
         pos_z_IMU(i) = pos_z_IMU(i-1) + vel_z_IMU(i)*(time_V_IMU(i)-time_V_IMU(i-1));
     end
-    
     Pos.X = pos_x_IMU;
     Pos.Y = pos_y_IMU;
     Pos.Z = pos_z_IMU;
@@ -188,5 +187,30 @@ function [Accel, Vel, Pos, AngVel] = get_IMU_Accelerometer_Data(bag)
 
 
 
+
+
+    pos_y_IMU = 0;
+    for i = 2:length(vel_y_IMU)
+        pos_y_IMU(i) = pos_y_IMU(i-1) + vel_y_IMU(i)*(time_V_IMU(i)-time_V_IMU(i-1));
+    end
+    Pos.Y = pos_y_IMU;
+
 end
 
+function [Pos] = get_GPS(bag)
+    topicGPSp = select(bag,'Topic','vehicle/gps/fix');
+    structGPSp = readMessages(topicGPSp,'DataFormat','struct');
+
+    Pos = struct;
+    
+
+    for i = 1:length(structGPSp)
+        Lat(i) = structGPSp{i}.Latitude;
+        Long(i) = structGPSp{i}.Longitude;
+        time(i) = getTime(structGPSp,i);
+    end
+
+    Pos.Latitude = Lat;
+    Pos.Longitude = Long;
+    Pos.Time = time;
+end
