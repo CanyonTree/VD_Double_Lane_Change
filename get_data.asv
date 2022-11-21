@@ -121,13 +121,8 @@ function [Accel, Vel, Pos, AngVel] = get_IMU_Accelerometer_Data(bag)
     for i = 2:length(vel_x_IMU)
         pos_x_IMU(i) = pos_x_IMU(i-1) + vel_x_IMU(i)*(time_V_IMU(i)-time_V_IMU(i-1));
     end
+    
     Pos.X = pos_x_IMU;
-
-    pos_y_IMU = 0;
-    for i = 2:length(vel_y_IMU)
-        pos_y_IMU(i) = pos_y_IMU(i-1) + vel_y_IMU(i)*(time_V_IMU(i)-time_V_IMU(i-1));
-    end
-    Pos.Y = pos_y_IMU;
 end
 
 function [Pos] = get_GPS(bag)
@@ -135,7 +130,7 @@ function [Pos] = get_GPS(bag)
     structGPSp = readMessages(topicGPSp,'DataFormat','struct');
 
     Pos = struct;
-    
+    Time = struct;
 
     for i = 1:length(structGPSp)
         Lat(i) = structGPSp{i}.Latitude;
