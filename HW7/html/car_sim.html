@@ -1,0 +1,309 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>car_sim</title><meta name="generator" content="MATLAB 9.12"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2022-11-07"><meta name="DC.source" content="car_sim.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="keyword">function</span> [rdd,rd,r,Bdd,Bd,B,Keff,Beff,rTF,BTF,kus,V_crit,Fyf,Fyr] = car_sim(input_values,car_params)
+<span class="comment">%CAR_SIM Perform one time step of the simulation of the yaw model</span>
+<span class="comment">%   Detailed explanation goes here</span>
+
+V = input_values.V;
+del = input_values.del;                       <span class="comment">% Steer angle</span>
+deld = input_values.deld;                     <span class="comment">% Derivative of Steer angle</span>
+r = input_values.r;
+rd = input_values.rd;                         <span class="comment">% Derivative of yaw rate</span>
+B = input_values.B;                           <span class="comment">% Beta, body slip</span>
+Bd = input_values.Bd;                         <span class="comment">% Derivative of body slip</span>
+dt = input_values.dt;                         <span class="comment">% time step</span>
+
+
+
+caf = car_params.caf;                         <span class="comment">% front axle cornering stiffness</span>
+car = car_params.car;                         <span class="comment">% rear axle cornering stiffness</span>
+Iz = car_params.Iz;
+a = car_params.a;
+b = car_params.b;
+m = car_params.m;
+L = car_params.L;
+use_duggoff = car_params.use_duggoff;
+use_tire_relaxation = car_params.use_tire_relaxation;
+
+<span class="comment">% Vy = V*sin(B);</span>
+<span class="comment">% Vx = V*cos(B);</span>
+Vy = V*B;
+Vx = V;
+
+alphaf = (Vy + a*r)./Vx - del;
+alphar = (Vy - b*r)./Vx;
+Wf = car_params.Wf;
+Wr = car_params.Wr;
+
+<span class="comment">% Adjust cornering stiffness according to duggoff tire model</span>
+<span class="keyword">if</span> use_duggoff == 1
+    mu = car_params.mu;
+    f_lamb_f = f_lambda(alphaf,caf,Wf,mu);
+    f_lamb_r = f_lambda(alphar,car,Wr,mu);
+    caf = caf*f_lamb_f;
+    car = car*f_lamb_r;
+<span class="keyword">end</span>
+
+
+<span class="comment">% Making the transfer functions from del to r and B</span>
+c0 = caf + car;
+c1 = a*caf - b*car;
+c2 = (a^2)*caf + (b^2)*car;
+
+<span class="comment">% Creating coeffecients of the transfer functions</span>
+A_r = (a*caf);
+B_r = (a*caf*c0 - c1*caf)/(m*V);
+
+A_B = (caf*Iz)/(m*V);
+B_B = (caf*c2)/(m*V^2) - (a*caf*c1)/(m*V^2) - a*caf;
+
+Meff = Iz;
+Beff = (c0*Iz + m*c2)/(m*V);
+Keff = (c0*c2)/(m*V^2) - c1 - (c1^2/(m*V^2));
+
+denominator = [Meff, Beff, Keff];
+
+rTF = [0, A_r, B_r; denominator];
+BTF = [0, A_B, B_B; denominator];
+
+
+<span class="comment">% actually calculating rd, r, Vyd, Vy, and B</span>
+
+
+<span class="keyword">if</span> use_tire_relaxation == 1
+    Fyf = input_values.Fyf;
+    Fyr = input_values.Fyr;
+
+
+    tire_relaxation_length = car_params.tire_relaxation_length;
+    Fyf_dot = (-alphaf*caf - Fyf)/(tire_relaxation_length/V);
+    Fyf = Fyf + Fyf_dot*dt;
+    Fyr_dot = (-alphar*car - Fyr)/(tire_relaxation_length/V);
+    Fyr = Fyr + Fyr_dot*dt;
+
+
+<span class="keyword">else</span>
+    Fyf = -caf*alphaf;
+    Fyr = -car*alphar;
+<span class="keyword">end</span>
+
+
+<span class="comment">% rd =&gt; Derivative of r</span>
+<span class="comment">% rdd =&gt; Derivative of rd</span>
+
+rdd = [];
+rd = (a*Fyf - b*Fyr)/Iz;
+<span class="comment">% rdd = (A_r*deld + B_r*del - Beff*rd - Keff*r)/Meff;</span>
+<span class="comment">% rd = rd + rdd*dt;</span>
+r = r + rd*dt;
+
+<span class="comment">% Vyd =&gt; Derivative of Vy</span>
+
+<span class="comment">% Vyd = (-caf*((Vy + a*r)/Vx - del) - car*((Vy - b*r)/Vx) - m*V*r)/m;</span>
+Vyd = (Fyf + Fyr)/m - V * r;
+Vy = Vy + Vyd*dt;
+
+Bdd = [];
+Bd = [];
+<span class="comment">% B = tan(Vy/Vx);</span>
+B = Vy/Vx;
+
+<span class="comment">% Bdd = (A_B*deld + B_B*del - Beff*Bd - Keff*B)/Meff;</span>
+<span class="comment">% Bd = Bd + Bdd*dt;</span>
+<span class="comment">% B = B + Bd*dt;</span>
+
+kus = Wf/(caf) - Wr/(car);    <span class="comment">% rad/g</span>
+V_crit = sqrt(-L/kus);
+<span class="keyword">end</span>
+</pre><pre class="codeoutput error">Not enough input arguments.
+
+Error in car_sim (line 5)
+V = input_values.V;
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2022a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+function [rdd,rd,r,Bdd,Bd,B,Keff,Beff,rTF,BTF,kus,V_crit,Fyf,Fyr] = car_sim(input_values,car_params)
+%CAR_SIM Perform one time step of the simulation of the yaw model
+%   Detailed explanation goes here
+
+V = input_values.V;
+del = input_values.del;                       % Steer angle
+deld = input_values.deld;                     % Derivative of Steer angle
+r = input_values.r;                           
+rd = input_values.rd;                         % Derivative of yaw rate
+B = input_values.B;                           % Beta, body slip
+Bd = input_values.Bd;                         % Derivative of body slip
+dt = input_values.dt;                         % time step
+
+
+
+caf = car_params.caf;                         % front axle cornering stiffness
+car = car_params.car;                         % rear axle cornering stiffness
+Iz = car_params.Iz;
+a = car_params.a;
+b = car_params.b;
+m = car_params.m;
+L = car_params.L;
+use_duggoff = car_params.use_duggoff;
+use_tire_relaxation = car_params.use_tire_relaxation;
+
+% Vy = V*sin(B);
+% Vx = V*cos(B);
+Vy = V*B;
+Vx = V;
+
+alphaf = (Vy + a*r)./Vx - del;
+alphar = (Vy - b*r)./Vx;
+Wf = car_params.Wf;
+Wr = car_params.Wr;
+
+% Adjust cornering stiffness according to duggoff tire model
+if use_duggoff == 1
+    mu = car_params.mu;
+    f_lamb_f = f_lambda(alphaf,caf,Wf,mu);
+    f_lamb_r = f_lambda(alphar,car,Wr,mu);
+    caf = caf*f_lamb_f;
+    car = car*f_lamb_r;
+end
+
+
+% Making the transfer functions from del to r and B
+c0 = caf + car;
+c1 = a*caf - b*car;
+c2 = (a^2)*caf + (b^2)*car;
+
+% Creating coeffecients of the transfer functions
+A_r = (a*caf);
+B_r = (a*caf*c0 - c1*caf)/(m*V);
+
+A_B = (caf*Iz)/(m*V);
+B_B = (caf*c2)/(m*V^2) - (a*caf*c1)/(m*V^2) - a*caf;
+
+Meff = Iz;
+Beff = (c0*Iz + m*c2)/(m*V);
+Keff = (c0*c2)/(m*V^2) - c1 - (c1^2/(m*V^2));
+
+denominator = [Meff, Beff, Keff];
+
+rTF = [0, A_r, B_r; denominator];
+BTF = [0, A_B, B_B; denominator];
+
+
+% actually calculating rd, r, Vyd, Vy, and B
+
+
+if use_tire_relaxation == 1
+    Fyf = input_values.Fyf;
+    Fyr = input_values.Fyr;
+    
+
+    tire_relaxation_length = car_params.tire_relaxation_length;
+    Fyf_dot = (-alphaf*caf - Fyf)/(tire_relaxation_length/V);
+    Fyf = Fyf + Fyf_dot*dt;
+    Fyr_dot = (-alphar*car - Fyr)/(tire_relaxation_length/V);
+    Fyr = Fyr + Fyr_dot*dt;
+    
+
+else
+    Fyf = -caf*alphaf;
+    Fyr = -car*alphar;
+end
+
+
+% rd => Derivative of r
+% rdd => Derivative of rd
+
+rdd = [];
+rd = (a*Fyf - b*Fyr)/Iz;
+% rdd = (A_r*deld + B_r*del - Beff*rd - Keff*r)/Meff;
+% rd = rd + rdd*dt;
+r = r + rd*dt;
+
+% Vyd => Derivative of Vy
+
+% Vyd = (-caf*((Vy + a*r)/Vx - del) - car*((Vy - b*r)/Vx) - m*V*r)/m;
+Vyd = (Fyf + Fyr)/m - V * r;
+Vy = Vy + Vyd*dt;
+
+Bdd = [];
+Bd = [];
+% B = tan(Vy/Vx);
+B = Vy/Vx;
+
+% Bdd = (A_B*deld + B_B*del - Beff*Bd - Keff*B)/Meff;
+% Bd = Bd + Bdd*dt;
+% B = B + Bd*dt;
+
+kus = Wf/(caf) - Wr/(car);    % rad/g
+V_crit = sqrt(-L/kus);
+end
+
+
+##### SOURCE END #####
+--></body></html>
