@@ -21,6 +21,7 @@ file2 = 'bryce.bag';
 file3 = 'nathan.bag';
 file4 = 'noah.bag';
 
+
 data1 = get_data(file1, t0_velocity, tfinal_velocity, Steering_Ratio);
 data2 = get_data(file2, t0_velocity, tfinal_velocity, Steering_Ratio);
 data3 = get_data(file3, t0_velocity, tfinal_velocity, Steering_Ratio);
@@ -47,3 +48,28 @@ plot(data4.Time,data4.IMU.AngVel.Yaw)
 xlabel('Time (s)')
 ylabel('Yaw Rate (deg/s)')
 title('Yaw Rate vs. Time')
+
+
+
+figure()
+subplot(2,2,1)
+plot([data1.GPS.Pos.Longitude],[data1.GPS.Pos.Latitude])
+title('Brooks')
+xlabel('East')
+ylabel('North')
+subplot(2,2,2)
+plot([data2.GPS.Pos.Longitude],[data2.GPS.Pos.Latitude])
+title('Bryce')
+xlabel('East')
+ylabel('North')
+subplot(2,2,3)
+plot([data3.GPS.Pos.Longitude],[data3.GPS.Pos.Latitude])
+title('Nathan')
+xlabel('East')
+ylabel('North')
+subplot(2,2,4)
+plot([data4.GPS.Pos.Longitude],[data4.GPS.Pos.Latitude])
+title('Noah')
+xlabel('East')
+ylabel('North')
+

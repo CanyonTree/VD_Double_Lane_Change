@@ -16,6 +16,11 @@ data_out.IMU.AngVel = AngVel;
 
 
 
+GPSpos = get_GPS(bag);
+data_out.GPS.Pos = GPSpos;
+
+
+
 %% Get steering angle
 topicdel = select(bag,'Topic','/vehicle/steering_report');
 structdel = readMessages(topicdel,'DataFormat','struct');
@@ -104,6 +109,14 @@ Orient.Time = timephi;
     data_out.Steering.SteeringWheelAngle = del/Steering_Ratio;
     data_out.Steering.Time = timedel;
     data_out.Time = AngVel.Time-data_out.t0;
+data_out.IMU.Orient.Yaw = Yaw;
+data_out.IMU.Orient.Pitch = Pitch;
+data_out.IMU.Orient.Roll = Roll;
+data_out.IMU.Orient.Time = timephi;
+
+data_out.t0 = get_t0(data_out,t0_velocity);
+
+
 
 end
 
@@ -182,5 +195,31 @@ function [Accel, Vel, Pos, AngVel] = get_IMU_Accelerometer_Data(bag)
 
 
 
+end
+
+
+    for i = 2:length(vel_x_IMU)
+        pos_x_IMU(i) = pos_x_IMU(i-1) + vel_x_IMU(i)*(time_V_IMU(i)-time_V_IMU(i-1));
+    end
+    
+    Pos.X = pos_x_IMU;
+end
+
+function [Pos] = get_GPS(bag)
+    topicGPSp = select(bag,'Topic','vehicle/gps/fix');
+    structGPSp = readMessages(topicGPSp,'DataFormat','struct');
+
+    Pos = struct;
+    Time = struct;
+
+    for i = 1:length(structGPSp)
+        Lat(i) = structGPSp{i}.Latitude;
+        Long(i) = structGPSp{i}.Longitude;
+        time(i) = getTime(structGPSp,i);
+    end
+
+    Pos.Latitude = Lat;
+    Pos.Longitude = Long;
+    Pos.Time = time;
 end
 
