@@ -7,6 +7,8 @@ bag = rosbag(bag);
 data_out = struct;
 
 [Accel, Vel, Pos, AngVel] = get_IMU_Accelerometer_Data(bag);
+
+
 data_out.IMU.Accel = Accel;
 data_out.IMU.Vel = Vel;
 data_out.IMU.Pos = Pos;
@@ -102,6 +104,13 @@ Orient.Time = timephi;
     
     Time = AngVel.Time-data_out.t0;
     Time = cut_data(Time,AngVel.Time,t0,tfinal);
+    
+    Accel.Units = "m/s^2";
+    Vel.Units = "m/s";
+    Pos.Units = "m";
+    AngVel.Units = "deg/s";
+    Orient.Units = "deg";
+    Steering.Units = "rad";
 
     data_out.IMU.Accel = Accel;
     data_out.IMU.Vel = Vel;

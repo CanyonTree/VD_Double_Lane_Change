@@ -27,6 +27,18 @@ data2 = get_data(file2, t0_velocity, tfinal_velocity, Steering_Ratio);
 data3 = get_data(file3, t0_velocity, tfinal_velocity, Steering_Ratio);
 data4 = get_data(file4, t0_velocity, tfinal_velocity, Steering_Ratio);
 
+sim_input1 = [data1.Time', data1.IMU.Vel.X', data1.Steering.SteerAngle'];
+sim_input2 = [data2.Time', data2.IMU.Vel.X', data2.Steering.SteerAngle'];
+sim_input3 = [data3.Time', data3.IMU.Vel.X', data3.Steering.SteerAngle'];
+sim_input4 = [data4.Time', data4.IMU.Vel.X', data4.Steering.SteerAngle'];
+
+HW8_MKZ_Params
+
+sim1_HW8 = car_sim_loop(sim_input1,car_params);
+sim2_HW8 = car_sim_loop(sim_input2,car_params);
+sim3_HW8 = car_sim_loop(sim_input3,car_params);
+sim4_HW8 = car_sim_loop(sim_input4,car_params);
+
 %%%% Displacement: Y vs. X %%%%
 figure
 plot(data1.IMU.Pos.X,data1.IMU.Pos.Y)
@@ -50,8 +62,8 @@ ylabel('Yaw Rate (deg/s)')
 title('Yaw Rate vs. Time')
 
 
-
-figure()
+%%%% GPS Position %%%%
+figure
 subplot(2,2,1)
 plot([data1.GPS.Pos.Longitude],[data1.GPS.Pos.Latitude])
 title('Brooks')
@@ -73,3 +85,36 @@ title('Noah')
 xlabel('East')
 ylabel('North')
 
+%%%% Sim and Real Yah Rates %%%%
+figure
+subplot(2,2,1)
+plot(data1.Time,data1.IMU.AngVel.Yaw)
+hold on
+plot([sim1_HW8.time], [sim1_HW8.r]*180/pi,'r--','LineWidth',2)
+xlabel('Time (s)')
+ylabel('Yaw Rate (deg/s)')
+title('Yaw Rate vs. Time')
+
+subplot(2,2,2)
+plot(data2.Time,data2.IMU.AngVel.Yaw)
+hold on
+plot([sim2_HW8.time], [sim2_HW8.r]*180/pi,'r--','LineWidth',2)
+xlabel('Time (s)')
+ylabel('Yaw Rate (deg/s)')
+title('Yaw Rate vs. Time')
+
+subplot(2,2,3)
+plot(data3.Time,data3.IMU.AngVel.Yaw)
+hold on
+plot([sim3_HW8.time], [sim3_HW8.r]*180/pi,'r--','LineWidth',2)
+xlabel('Time (s)')
+ylabel('Yaw Rate (deg/s)')
+title('Yaw Rate vs. Time')
+
+subplot(2,2,4)
+plot(data4.Time,data4.IMU.AngVel.Yaw)
+hold on
+plot([sim4_HW8.time], [sim4_HW8.r]*180/pi,'r--','LineWidth',2)
+xlabel('Time (s)')
+ylabel('Yaw Rate (deg/s)')
+title('Yaw Rate vs. Time')
