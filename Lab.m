@@ -46,6 +46,15 @@ sim2_Lab3 = car_sim_loop(sim_input2,car_params);
 sim3_Lab3 = car_sim_loop(sim_input3,car_params);
 sim4_Lab3 = car_sim_loop(sim_input4,car_params);
 
+%%%% Steer Angle vs. Time %%%%
+figure
+plot(sim_input1(:,1),sim_input1(:,3)*180/pi)
+hold on
+plot(sim_input2(:,1),sim_input2(:,3)*180/pi)
+plot(sim_input3(:,1),sim_input3(:,3)*180/pi)
+plot(sim_input4(:,1),sim_input4(:,3)*180/pi,'m')
+plot(sim_input4(:,1),sim_input4(:,2),'m--')
+
 %%%% Displacement: Y vs. X %%%%
 figure
 plot(data1.IMU.Pos.X,data1.IMU.Pos.Y)
