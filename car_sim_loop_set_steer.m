@@ -1,10 +1,10 @@
-function [sim] = car_sim_loop_set_steer(delta,Vel,tfinal,X0,specs)
+function [sim] = car_sim_loop_set_steer(delta,Vel,tinitial,tfinal,X0,specs)
 %CAR_SIM Summary of this function goes here
 %   Detailed explanation goes here
 
 dt = 0.01; %s
 i = 1;
-% mu = specs.mu;
+mu = specs.mu;
 % X0=[East0 (m)  North0 (m)  Heading0 (rad) yaw_rate0 (rad/s)];
 GPS(i,:) = [X0(1), X0(2), X0(3), Vel(i), 0];
 East(i) = GPS(i,1);
@@ -18,7 +18,7 @@ Course(i) = GPS(i,5);
 yaw_gyro(i) = X0(4);
 delta_enc(i) = 0;
 
-t = 0:dt:tfinal;
+t = tinitial:dt:tfinal;
 
 
 i = 2;
@@ -38,9 +38,9 @@ Course(i) = GPS(i,5);
 for i = 3:length(t)
 
     if (specs.use_duggoff == 1)
-        [GPS(i,:),yaw_gyro(i),delta_enc(i)] = run_MKZ(delta(i), Vel, mu);
+        [GPS(i,:),yaw_gyro(i),delta_enc(i)] = run_MKZ(delta(i), Vel(i));
     else
-        [GPS(i,:),yaw_gyro(i),delta_enc(i)] = run_MKZ(delta(i), Vel);
+        [GPS(i,:),yaw_gyro(i),delta_enc(i)] = run_MKZ(delta(i), Vel(i));
     end
 
     % GPS=[East (m)  North(m)  Heading(rad) Speed (m/s) Course(rad)]

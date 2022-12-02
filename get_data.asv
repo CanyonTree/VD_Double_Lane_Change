@@ -1,10 +1,11 @@
 function [data_out] = get_data(bag,t0_velocity,tfinal_velocity, Steering_Ratio)
 %GET_DATA Summary of this function goes here
 %   Detailed explanation goes here
-tr = 1.5748;
-delta_x = 0.9144;
-delta_y = 0.6096;
-b = 1.593;
+
+delta_y = 
+delta_x = 
+tr = 
+b = 
 
 bag = rosbag(bag);
 
@@ -12,6 +13,8 @@ data_out = struct;
 
 [Accel, Vel, Pos, AngVel] = get_IMU_Accelerometer_Data(bag);
 
+for i = 1:length(Vel.Time)
+    CG_Vel = [Vel.Y(i), Vel.X(i), 0] + cross([0, 0, AngVel.Yaw(i)], [delta_y - tr/2,  (b + delta_x), 0]);
 
 data_out.IMU.Accel = Accel;
 data_out.IMU.Vel = Vel;
@@ -90,7 +93,6 @@ Orient.Time = timephi;
     AngVel.Yaw = cut_data(AngVel.Yaw,AngVel.Time,t0,tfinal);
     AngVel.Pitch = cut_data(AngVel.Pitch,AngVel.Time,t0,tfinal);
     AngVel.Roll = cut_data(AngVel.Roll,AngVel.Time,t0,tfinal);
-    
 
     Accel.X = cut_data(Accel.X,AngVel.Time,t0,tfinal);
     Accel.Y = cut_data(Accel.Y,AngVel.Time,t0,tfinal);
@@ -116,13 +118,6 @@ Orient.Time = timephi;
     AngVel.Units = "deg/s";
     Orient.Units = "deg";
     Steering.Units = "rad";
-
-for i = 1:length(Time)
-    CG_Vel(i,:) = [Vel.Y(i), Vel.X(i), 0] + cross([0, 0, AngVel.Yaw(i)], [delta_y - tr/2,  (b + delta_x), 0]);
-end
-
-Vel.X = CG_Vel(:,2)';
-Vel.Y = CG_Vel(:,1)';
 
     data_out.IMU.Accel = Accel;
     data_out.IMU.Vel = Vel;

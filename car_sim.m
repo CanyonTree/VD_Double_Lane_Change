@@ -89,10 +89,10 @@ end
 % rd => Derivative of r
 % rdd => Derivative of rd
 
-rdd = [];
-rd = (a*Fyf - b*Fyr)/Iz;
-% rdd = (A_r*deld + B_r*del - Beff*rd - Keff*r)/Meff;
-% rd = rd + rdd*dt;
+% rdd = [];
+% rd = (a*Fyf - b*Fyr)/Iz;
+rdd = (A_r*deld + B_r*del - Beff*rd - Keff*r)/Meff;
+rd = rd + rdd*dt;
 r = r + rd*dt;
 
 % Vyd => Derivative of Vy
@@ -105,7 +105,7 @@ Bdd = [];
 Bd = [];
 % B = tan(Vy/Vx);
 B = Vy/Vx;
-
+% 
 % Bdd = (A_B*deld + B_B*del - Beff*Bd - Keff*B)/Meff;
 % Bd = Bd + Bdd*dt;
 % B = B + Bd*dt;

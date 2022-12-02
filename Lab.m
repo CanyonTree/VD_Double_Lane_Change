@@ -32,6 +32,11 @@ sim_input2 = [data2.Time', data2.IMU.Vel.X', data2.Steering.SteerAngle'];
 sim_input3 = [data3.Time', data3.IMU.Vel.X', data3.Steering.SteerAngle'];
 sim_input4 = [data4.Time', data4.IMU.Vel.X', data4.Steering.SteerAngle'];
 
+% sim_input1(:,2) = max(sim_input1(:,2)-2);
+% sim_input2(:,2) = max(sim_input2(:,2)-2);
+% sim_input3(:,2) = max(sim_input3(:,2)-2);
+% sim_input4(:,2) = max(sim_input4(:,2)-2);
+
 HW8_MKZ_Params
 
 sim1_HW8 = car_sim_loop(sim_input1,car_params);
@@ -39,6 +44,13 @@ sim2_HW8 = car_sim_loop(sim_input2,car_params);
 sim3_HW8 = car_sim_loop(sim_input3,car_params);
 sim4_HW8 = car_sim_loop(sim_input4,car_params);
 
+X0 = [0,0,0,0];
+sim1_Pcode = car_sim_loop_set_steer(sim_input1(:,3),sim_input1(:,2),sim_input1(1,1),sim_input1(end,1),X0,car_params);
+sim2_Pcode = car_sim_loop_set_steer(sim_input2(:,3),sim_input2(:,2),sim_input2(1,1),sim_input2(end,1),X0,car_params);
+sim3_Pcode = car_sim_loop_set_steer(sim_input3(:,3),sim_input3(:,2),sim_input3(1,1),sim_input3(end,1),X0,car_params);
+sim4_Pcode = car_sim_loop_set_steer(sim_input4(:,3),sim_input4(:,2),sim_input4(1,1),sim_input4(end,1),X0,car_params);
+
+clear car_params
 Lab3_MKZ_Params
 
 sim1_Lab3 = car_sim_loop(sim_input1,car_params);
@@ -46,14 +58,23 @@ sim2_Lab3 = car_sim_loop(sim_input2,car_params);
 sim3_Lab3 = car_sim_loop(sim_input3,car_params);
 sim4_Lab3 = car_sim_loop(sim_input4,car_params);
 
+sim1_Pcode_Duggoff = car_sim_loop_set_steer(sim_input1(:,3),sim_input1(:,2),sim_input1(1,1),sim_input1(end,1),X0,car_params);
+sim2_Pcode_Duggoff = car_sim_loop_set_steer(sim_input2(:,3),sim_input2(:,2),sim_input2(1,1),sim_input2(end,1),X0,car_params);
+sim3_Pcode_Duggoff = car_sim_loop_set_steer(sim_input3(:,3),sim_input3(:,2),sim_input3(1,1),sim_input3(end,1),X0,car_params);
+sim4_Pcode_Duggoff = car_sim_loop_set_steer(sim_input4(:,3),sim_input4(:,2),sim_input4(1,1),sim_input4(end,1),X0,car_params);
+
 %%%% Steer Angle vs. Time %%%%
 figure
 plot(sim_input1(:,1),sim_input1(:,3)*180/pi)
 hold on
 plot(sim_input2(:,1),sim_input2(:,3)*180/pi)
 plot(sim_input3(:,1),sim_input3(:,3)*180/pi)
-plot(sim_input4(:,1),sim_input4(:,3)*180/pi,'m')
-plot(sim_input4(:,1),sim_input4(:,2),'m--')
+plot(sim_input4(:,1),sim_input4(:,3)*180/pi)
+% plot(sim_input4(:,1),sim_input4(:,2),'m--')
+title('Steer Angle vs. Time')
+xlabel('Time (s)')
+ylabel('Steer Angle (deg)')
+legend('Brooks','Bryce','Nathan','Noah','Location','Best')
 
 %%%% Displacement: Y vs. X %%%%
 figure
@@ -108,37 +129,45 @@ plot(data1.Time,data1.IMU.AngVel.Yaw)
 hold on
 plot([sim1_HW8.time], [sim1_HW8.r]*180/pi,'r--','LineWidth',2)
 plot([sim1_Lab3.time], [sim1_Lab3.r]*180/pi,'g--','LineWidth',2)
+plot(sim1_Pcode.Time, sim1_Pcode.Yaw_Gyro*180/pi,'m--','LineWidth',2)
+plot(sim1_Pcode_Duggoff.Time, sim1_Pcode_Duggoff.Yaw_Gyro*180/pi,'k--','LineWidth',2)
 xlabel('Time (s)')
 ylabel('Yaw Rate (deg/s)')
 title('Yaw Rate vs. Time')
-legend('Experiment','HW8 Model','Lab 3 Model')
+legend('Experiment','HW8 Model','Lab 3 Model','run_MKZ')
 
 subplot(2,2,2)
 plot(data2.Time,data2.IMU.AngVel.Yaw)
 hold on
 plot([sim2_HW8.time], [sim2_HW8.r]*180/pi,'r--','LineWidth',2)
 plot([sim2_Lab3.time], [sim2_Lab3.r]*180/pi,'g--','LineWidth',2)
+plot(sim2_Pcode.Time, sim2_Pcode.Yaw_Gyro*180/pi,'m--','LineWidth',2)
+plot(sim2_Pcode_Duggoff.Time, sim2_Pcode_Duggoff.Yaw_Gyro*180/pi,'k--','LineWidth',2)
 xlabel('Time (s)')
 ylabel('Yaw Rate (deg/s)')
 title('Yaw Rate vs. Time')
-legend('Experiment','HW8 Model','Lab 3 Model')
+legend('Experiment','HW8 Model','Lab 3 Model','run_MKZ')
 
 subplot(2,2,3)
 plot(data3.Time,data3.IMU.AngVel.Yaw)
 hold on
 plot([sim3_HW8.time], [sim3_HW8.r]*180/pi,'r--','LineWidth',2)
 plot([sim3_Lab3.time], [sim3_Lab3.r]*180/pi,'g--','LineWidth',2)
+plot(sim3_Pcode.Time, sim3_Pcode.Yaw_Gyro*180/pi,'m--','LineWidth',2)
+plot(sim3_Pcode_Duggoff.Time, sim3_Pcode_Duggoff.Yaw_Gyro*180/pi,'k--','LineWidth',2)
 xlabel('Time (s)')
 ylabel('Yaw Rate (deg/s)')
 title('Yaw Rate vs. Time')
-legend('Experiment','HW8 Model','Lab 3 Model')
+legend('Experiment','HW8 Model','Lab 3 Model','run_MKZ')
 
 subplot(2,2,4)
 plot(data4.Time,data4.IMU.AngVel.Yaw)
 hold on
 plot([sim4_HW8.time], [sim4_HW8.r]*180/pi,'r--','LineWidth',2)
 plot([sim4_Lab3.time], [sim4_Lab3.r]*180/pi,'g--','LineWidth',2)
+plot(sim4_Pcode.Time, sim4_Pcode.Yaw_Gyro*180/pi,'m--','LineWidth',2)
+plot(sim4_Pcode_Duggoff.Time, sim4_Pcode_Duggoff.Yaw_Gyro*180/pi,'k--','LineWidth',2)
 xlabel('Time (s)')
 ylabel('Yaw Rate (deg/s)')
 title('Yaw Rate vs. Time')
-legend('Experiment','HW8 Model','Lab 3 Model')
+legend('Experiment','HW8 Model','Lab 3 Model','run_MKZ')
